@@ -159,11 +159,33 @@
                 <label>Alto: <input type="number" id="canvasHeight" value="600" min="300" max="2000"></label>
             </div>
 
+            <div class="export-controls">
+                <h3>Exportación de Alta Calidad</h3>
+                <label>Multiplicador de Resolución: 
+                    <select id="exportMultiplier">
+                        <option value="1">1x (Resolución Normal)</option>
+                        <option value="2" selected>2x (Alta Calidad)</option>
+                        <option value="3">3x (Muy Alta Calidad)</option>
+                        <option value="4">4x (Máxima Calidad)</option>
+                    </select>
+                </label>
+                <label>Calidad de Exportación: 
+                    <select id="exportQuality">
+                        <option value="png">PNG (Sin pérdida)</option>
+                        <option value="png-high">PNG (Máxima calidad)</option>
+                    </select>
+                </label>
+                <p style="font-size: 10px; color: #aaa; margin-top: 5px;">
+                    Nota: Multiplicadores más altos generan archivos más grandes y pueden tardar más en renderizar.
+                </p>
+            </div>
+
             <div class="action-buttons">
                 <button id="generateBtn">Generar Arte</button>
                 <button id="saveBtn">Guardar en Base de Datos</button>
                 <button id="loadBtn">Cargar desde Base de Datos</button>
                 <button id="exportBtn">Exportar como PNG</button>
+                <button id="exportHighQualityBtn">Exportar Alta Calidad</button>
             </div>
 
             <div id="gallery" class="gallery"></div>
