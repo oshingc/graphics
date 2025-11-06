@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generative Data Art Engine</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/processing.js/1.6.6/processing.min.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://unpkg.com/@antv/g6@latest/dist/g6.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Generative Data Art Engine</h1>
+        
+        <div class="controls-panel">
+            <div class="control-group">
+                <label for="artType">Tipo de Arte:</label>
+                <select id="artType">
+                    <option value="fractal">Fractal</option>
+                    <option value="mandala">Mandala</option>
+                    <option value="vectorField">Campo Vectorial</option>
+                    <option value="particles">Simulación de Partículas</option>
+                    <option value="perlin">Perlin Noise</option>
+                    <option value="mathematical">Formas Matemáticas</option>
+                    <option value="tensions">Conections</option>
+                    <option value="musicalTensions">Musical Conections</option>
+                </select>
+            </div>
+
+            <div id="fractalParams" class="param-group">
+                <h3>Parámetros de Fractal</h3>
+                <label>Iteraciones: <input type="number" id="fractalIterations" value="10" min="1" max="15"></label>
+                <label>Ángulo: <input type="number" id="fractalAngle" value="30" min="0" max="360"></label>
+                <label>Longitud: <input type="number" id="fractalLength" value="100" min="10" max="300"></label>
+            </div>
+
+            <div id="mandalaParams" class="param-group" style="display:none;">
+                <h3>Parámetros de Mandala</h3>
+                <label>Segmentos: <input type="number" id="mandalaSegments" value="12" min="4" max="32"></label>
+                <label>Radio Base: <input type="number" id="mandalaRadius" value="50" min="20" max="150"></label>
+                <label>Capas: <input type="number" id="mandalaLayers" value="5" min="2" max="10"></label>
+            </div>
+
+            <div id="vectorFieldParams" class="param-group" style="display:none;">
+                <h3>Parámetros de Campo Vectorial</h3>
+                <label>Densidad: <input type="number" id="vectorDensity" value="20" min="5" max="50"></label>
+                <label>Escala: <input type="number" id="vectorScale" value="0.02" step="0.01" min="0.001" max="0.1"></label>
+                <label>Fuerza: <input type="number" id="vectorForce" value="5" min="1" max="20"></label>
+            </div>
+
+            <div id="particleParams" class="param-group" style="display:none;">
+                <h3>Parámetros de Partículas</h3>
+                <label>Cantidad: <input type="number" id="particleCount" value="100" min="10" max="500"></label>
+                <label>Velocidad: <input type="number" id="particleSpeed" value="2" step="0.1" min="0.1" max="10"></label>
+                <label>Gravedad: <input type="number" id="particleGravity" value="0.1" step="0.01" min="0" max="1"></label>
+            </div>
+
+            <div id="perlinParams" class="param-group" style="display:none;">
+                <h3>Parámetros de Perlin Noise</h3>
+                <label>Escala: <input type="number" id="perlinScale" value="0.01" step="0.001" min="0.001" max="0.1"></label>
+                <label>Velocidad: <input type="number" id="perlinSpeed" value="0.02" step="0.01" min="0" max="0.1"></label>
+                <label>Detalle: <input type="number" id="perlinDetail" value="8" min="1" max="20"></label>
+            </div>
+
+            <div id="mathParams" class="param-group" style="display:none;">
+                <h3>Parámetros de Formas Matemáticas</h3>
+                <label>Tipo: 
+                    <select id="mathType">
+                        <option value="spiral">Espiral</option>
+                        <option value="lissajous">Lissajous</option>
+                        <option value="rose">Rosa</option>
+                        <option value="lemniscate">Lemniscata</option>
+                    </select>
+                </label>
+                <label>Parámetro A: <input type="number" id="mathParamA" value="5" min="1" max="20"></label>
+                <label>Parámetro B: <input type="number" id="mathParamB" value="3" min="1" max="20"></label>
+            </div>
+
+            <div id="tensionsParams" class="param-group" style="display:none;">
+                <h3>Parámetros de Tensiones Ilustradas</h3>
+                <label>Nodos: <input type="number" id="tensionsNodes" value="20" min="5" max="100"></label>
+                <label>Fuerza de Tensión: <input type="number" id="tensionsForce" value="0.5" step="0.1" min="0.1" max="2.0"></label>
+                <label>Distancia Mínima: <input type="number" id="tensionsMinDist" value="50" min="20" max="200"></label>
+                <label>Distancia Máxima: <input type="number" id="tensionsMaxDist" value="200" min="100" max="500"></label>
+                <label>Grosor de Línea: <input type="number" id="tensionsThickness" value="1" min="0.5" max="5" step="0.5"></label>
+                <label>Animar: <input type="checkbox" id="tensionsAnimate" checked></label>
+            </div>
+
+            <div id="musicalTensionsParams" class="param-group" style="display:none;">
+                <h3>Parámetros de Tensiones Musicales</h3>
+                <label>Nota Raíz: 
+                    <select id="musicalRoot">
+                        <option value="C">C</option>
+                        <option value="C#">C#</option>
+                        <option value="D" selected>D</option>
+                        <option value="D#">D#</option>
+                        <option value="E">E</option>
+                        <option value="F">F</option>
+                        <option value="F#">F#</option>
+                        <option value="G">G</option>
+                        <option value="G#">G#</option>
+                        <option value="A">A</option>
+                        <option value="A#">A#</option>
+                        <option value="B">B</option>
+                    </select>
+                </label>
+                <label>Calidad del Acorde: 
+                    <select id="musicalChordQuality">
+                        <option value="m7" selected>m7 (Menor 7)</option>
+                        <option value="maj7">maj7 (Mayor 7)</option>
+                        <option value="7">7 (Dominante 7)</option>
+                        <option value="m">m (Menor)</option>
+                        <option value="maj">maj (Mayor)</option>
+                        <option value="dim">dim (Disminuido)</option>
+                        <option value="dim7">dim7 (Disminuido 7)</option>
+                        <option value="m7b5">m7b5 (Menor 7 b5)</option>
+                        <option value="aug">aug (Aumentado)</option>
+                    </select>
+                </label>
+                <label>Modo: 
+                    <select id="musicalMode">
+                        <option value="dorian" selected>Dorian</option>
+                        <option value="ionian">Ionian (Mayor)</option>
+                        <option value="phrygian">Phrygian</option>
+                        <option value="lydian">Lydian</option>
+                        <option value="mixolydian">Mixolydian</option>
+                        <option value="aeolian">Aeolian (Menor Natural)</option>
+                        <option value="locrian">Locrian</option>
+                    </select>
+                </label>
+                <label>Mostrar Tensiones: 
+                    <select id="musicalTensionsShow">
+                        <option value="all">Todas (9, 11, 13)</option>
+                        <option value="9">Solo 9</option>
+                        <option value="11">Solo 11</option>
+                        <option value="13">Solo 13</option>
+                        <option value="9_11">9 y 11</option>
+                        <option value="9_13">9 y 13</option>
+                        <option value="11_13">11 y 13</option>
+                    </select>
+                </label>
+                <label>Distancia entre Notas: <input type="number" id="musicalNoteSpacing" value="80" min="40" max="150"></label>
+                <label>Radio de Círculo: <input type="number" id="musicalCircleRadius" value="200" min="100" max="400"></label>
+                <label>Grosor de Línea: <input type="number" id="musicalLineThickness" value="2" min="1" max="5"></label>
+                <label>Mostrar Nombres: <input type="checkbox" id="musicalShowNames" checked></label>
+                <label>Animar: <input type="checkbox" id="musicalAnimate"></label>
+            </div>
+
+            <div class="color-controls">
+                <h3>Colores</h3>
+                <label>Color Fondo: <input type="color" id="bgColor" value="#000000"></label>
+                <label>Color Principal: <input type="color" id="primaryColor" value="#ffffff"></label>
+                <label>Color Secundario: <input type="color" id="secondaryColor" value="#00ff00"></label>
+            </div>
+
+            <div class="canvas-controls">
+                <label>Ancho: <input type="number" id="canvasWidth" value="800" min="400" max="2000"></label>
+                <label>Alto: <input type="number" id="canvasHeight" value="600" min="300" max="2000"></label>
+            </div>
+
+            <div class="action-buttons">
+                <button id="generateBtn">Generar Arte</button>
+                <button id="saveBtn">Guardar en Base de Datos</button>
+                <button id="loadBtn">Cargar desde Base de Datos</button>
+                <button id="exportBtn">Exportar como PNG</button>
+            </div>
+
+            <div id="gallery" class="gallery"></div>
+        </div>
+
+        <div class="canvas-container">
+            <canvas id="processingCanvas" width="800" height="600"></canvas>
+            <div id="d3Container"></div>
+            <div id="g6Container"></div>
+        </div>
+    </div>
+
+    <script src="processing-art.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
+

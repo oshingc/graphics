@@ -1,0 +1,199 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Courier New', monospace;
+    background: #1a1a1a;
+    color: #e0e0e0;
+    padding: 20px;
+}
+
+.container {
+    display: flex;
+    gap: 20px;
+    max-width: 1800px;
+    margin: 0 auto;
+}
+
+h1 {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.controls-panel {
+    width: 350px;
+    background: #2a2a2a;
+    padding: 20px;
+    border: 1px solid #444;
+    border-radius: 4px;
+    overflow-y: auto;
+    max-height: calc(100vh - 40px);
+    position: fixed;
+    left: 20px;
+    top: 60px;
+}
+
+.control-group {
+    margin-bottom: 20px;
+}
+
+.param-group {
+    margin-bottom: 15px;
+    padding: 10px;
+    background: #333;
+    border-radius: 4px;
+}
+
+.param-group h3 {
+    font-size: 14px;
+    margin-bottom: 10px;
+    color: #fff;
+}
+
+.param-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 12px;
+}
+
+.param-group input,
+.param-group select {
+    width: 100%;
+    padding: 4px;
+    background: #1a1a1a;
+    color: #e0e0e0;
+    border: 1px solid #555;
+    border-radius: 2px;
+    font-family: 'Courier New', monospace;
+}
+
+.color-controls {
+    margin-bottom: 15px;
+    padding: 10px;
+    background: #333;
+    border-radius: 4px;
+}
+
+.color-controls h3 {
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
+.color-controls label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 12px;
+}
+
+.color-controls input[type="color"] {
+    width: 100%;
+    height: 30px;
+    border: none;
+    cursor: pointer;
+}
+
+.canvas-controls {
+    margin-bottom: 15px;
+    padding: 10px;
+    background: #333;
+    border-radius: 4px;
+}
+
+.canvas-controls label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 12px;
+}
+
+.canvas-controls input {
+    width: 100%;
+    padding: 4px;
+    background: #1a1a1a;
+    color: #e0e0e0;
+    border: 1px solid #555;
+    border-radius: 2px;
+    font-family: 'Courier New', monospace;
+}
+
+.action-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.action-buttons button {
+    padding: 10px;
+    background: #444;
+    color: #fff;
+    border: 1px solid #666;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    transition: background 0.2s;
+}
+
+.action-buttons button:hover {
+    background: #555;
+}
+
+.action-buttons button:active {
+    background: #333;
+}
+
+.canvas-container {
+    margin-left: 370px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+#processingCanvas {
+    border: 1px solid #444;
+    background: #000;
+    display: block;
+}
+
+#d3Container,
+#g6Container {
+    border: 1px solid #444;
+    background: #000;
+    min-height: 300px;
+}
+
+.gallery {
+    margin-top: 20px;
+}
+
+.gallery-item {
+    margin-bottom: 10px;
+    padding: 10px;
+    background: #333;
+    border-radius: 4px;
+    cursor: pointer;
+    border: 1px solid #555;
+}
+
+.gallery-item:hover {
+    background: #444;
+}
+
+.gallery-item h4 {
+    font-size: 12px;
+    margin-bottom: 5px;
+}
+
+.gallery-item p {
+    font-size: 10px;
+    color: #aaa;
+}
+

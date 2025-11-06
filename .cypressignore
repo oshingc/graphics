@@ -1,0 +1,9 @@
+node_modules/
+*.db
+*.db-journal
+manim_output/
+*.mp4
+*.png
+.env
+.DS_Store
+

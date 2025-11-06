@@ -1,0 +1,15 @@
+node_modules/
+artworks.db
+artworks.db-journal
+manim_output/
+temp_manim_script.py
+*.mp4
+*.png
+.env
+.DS_Store
+
+# Cypress
+cypress/videos/
+cypress/screenshots/
+cypress/downloads/
+
