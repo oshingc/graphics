@@ -45,7 +45,7 @@ pip3 install -r requirements.txt
 
 ## Uso
 
-### Iniciar el servidor
+### Desarrollo Local
 
 ```bash
 npm start
@@ -60,6 +60,12 @@ npm run dev
 ### Acceder a la aplicación
 
 Abre tu navegador en `http://localhost:3003`
+
+### Producción / GitHub Pages
+
+La aplicación está configurada para funcionar en GitHub Pages. La configuración de entorno se detecta automáticamente.
+
+**Nota**: Para usar la funcionalidad de base de datos en producción, necesitarás configurar un servidor de API separado y actualizar la URL en `config/env.js`.
 
 ## Pruebas E2E con Cypress
 
@@ -124,6 +130,23 @@ graphics/
 ├── package.json            # Dependencias Node.js
 ├── requirements.txt        # Dependencias Python
 ├── artworks.db             # Base de datos SQLite (se crea automáticamente)
+├── config/                 # Configuración
+│   ├── env.js             # Configuración de entorno
+│   └── swagger.js          # Configuración de Swagger
+├── db/                     # Capa de datos
+│   ├── database.js        # Conexión a base de datos
+│   ├── artworks.repository.js
+│   ├── charts.repository.js
+│   └── presets.repository.js
+├── services/               # Lógica de negocio
+│   ├── artworks.service.js
+│   ├── charts.service.js
+│   ├── presets.service.js
+│   └── manim.service.js
+├── routes/                 # Rutas de la API
+│   ├── artworks.routes.js
+│   ├── charts.routes.js
+│   └── presets.routes.js
 ├── cypress/                # Pruebas E2E con Cypress
 │   ├── e2e/
 │   │   └── app.cy.js       # Pruebas principales
@@ -136,43 +159,63 @@ graphics/
 
 ## API Endpoints
 
-### GET /api/art
-Obtiene todos los artefactos guardados.
+### Documentación Swagger
 
-### GET /api/art/:id
-Obtiene un artefacto específico por ID.
+La documentación completa de la API está disponible en:
+- Desarrollo: `http://localhost:3003/api-docs`
+- Producción: `{your-domain}/api-docs`
 
-### POST /api/art
-Guarda un nuevo artefacto. Body:
-```json
-{
-  "type": "fractal",
-  "parameters": {...},
-  "imageData": "data:image/png;base64,...",
-  "canvasSize": {"width": 800, "height": 600}
-}
+### Endpoints principales
+
+#### Artworks
+- `GET /api/art` - Obtener todos los artefactos
+- `GET /api/art/:id` - Obtener un artefacto específico
+- `POST /api/art` - Crear un nuevo artefacto
+- `PUT /api/art/:id` - Actualizar un artefacto
+- `DELETE /api/art/:id` - Eliminar un artefacto
+- `POST /api/art/:id/manim` - Generar animación Manim
+
+#### Charts
+- `GET /api/charts` - Obtener todos los charts
+- `GET /api/charts/:id` - Obtener un chart específico
+- `POST /api/charts` - Crear un nuevo chart
+- `PUT /api/charts/:id` - Actualizar un chart
+- `DELETE /api/charts/:id` - Eliminar un chart
+
+#### Presets
+- `GET /api/presets` - Obtener todos los presets
+- `GET /api/presets/:id` - Obtener un preset específico
+- `POST /api/presets` - Crear un nuevo preset
+- `PUT /api/presets/:id` - Actualizar un preset
+- `DELETE /api/presets/:id` - Eliminar un preset
+
+## Deployment
+
+### GitHub Pages
+
+1. Habilita GitHub Pages en la configuración del repositorio
+2. Selecciona la rama `main` y la carpeta raíz
+3. El workflow de GitHub Actions se ejecutará automáticamente
+
+### Configuración de Producción
+
+Para usar la funcionalidad de base de datos en producción:
+
+1. Configura un servidor de API (puedes usar el mismo `server.js` en un servicio como Heroku, Railway, etc.)
+2. Actualiza la URL de la API en `config/env.js`:
+
+```javascript
+baseURL: 'https://your-api-server.com/api'
 ```
-
-### DELETE /api/art/:id
-Elimina un artefacto por ID.
-
-### POST /api/art/:id/manim
-Genera una animación Manim para un artefacto específico.
 
 ## Uso de Manim
 
 Para generar animaciones con Manim desde un artefacto guardado:
 
 1. Guarda un artefacto en la base de datos
-2. Usa el endpoint `/api/art/:id/manim` o ejecuta directamente:
+2. Haz una petición POST a `/api/art/:id/manim`
+3. La animación se generará y guardará en `manim_output/`
 
-```bash
-python3 manim_generator.py params.json
-```
+## Licencia
 
-## Notas
-
-- La aplicación está diseñada para renderizar gráficos de alta calidad, no para diseño responsive o interfaces visualmente atractivas.
-- Los gráficos se almacenan como datos base64 en la base de datos.
-- Manim requiere instalación adicional y puede tardar en renderizar animaciones.
-
+MIT

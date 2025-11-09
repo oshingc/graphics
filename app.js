@@ -1,6 +1,20 @@
 // Aplicación principal - Manejo de formularios, API, y almacenamiento
 
-const API_BASE_URL = 'http://localhost:3003/api';
+// Cargar configuración de entorno
+let API_BASE_URL = 'http://localhost:3003/api';
+
+// Intentar cargar configuración de entorno
+if (typeof APP_CONFIG !== 'undefined') {
+    API_BASE_URL = APP_CONFIG.api.baseURL;
+} else {
+    // Fallback: detectar entorno manualmente
+    const isProduction = window.location.hostname !== 'localhost' && 
+                         window.location.hostname !== '127.0.0.1';
+    if (isProduction) {
+        // En producción, usar la misma URL base
+        API_BASE_URL = window.location.origin + '/api';
+    }
+}
 
 // Inicialización
 document.addEventListener('DOMContentLoaded', function() {
@@ -560,55 +574,87 @@ async function createD3Visualization() {
 
 // Integración con G6.js para visualización de grafos
 function createG6Visualization() {
-    const container = document.getElementById('g6Container');
-    container.innerHTML = '';
-    
-    const data = {
-        nodes: [
-            { id: 'node1', label: 'Fractal' },
-            { id: 'node2', label: 'Mandala' },
-            { id: 'node3', label: 'Vector Field' },
-            { id: 'node4', label: 'Particles' },
-            { id: 'node5', label: 'Perlin' },
-            { id: 'node6', label: 'Mathematical' }
-        ],
-        edges: [
-            { source: 'node1', target: 'node2' },
-            { source: 'node2', target: 'node3' },
-            { source: 'node3', target: 'node4' },
-            { source: 'node4', target: 'node5' },
-            { source: 'node5', target: 'node6' }
-        ]
-    };
-    
-    const graph = new G6.Graph({
-        container: 'g6Container',
-        width: 800,
-        height: 300,
-        modes: {
-            default: ['drag-canvas', 'zoom-canvas']
-        },
-        defaultNode: {
-            size: 30,
-            style: {
-                fill: '#fff',
-                stroke: '#000'
-            }
-        },
-        defaultEdge: {
-            style: {
-                stroke: '#fff'
-            }
+    try {
+        const container = document.getElementById('g6Container');
+        if (!container) {
+            console.warn('g6Container no encontrado');
+            return;
         }
-    });
-    
-    graph.data(data);
-    graph.render();
+        
+        // Verificar que G6 está disponible
+        if (typeof G6 === 'undefined') {
+            console.warn('G6.js no está disponible');
+            return;
+        }
+        
+        container.innerHTML = '';
+        
+        const data = {
+            nodes: [
+                { id: 'node1', label: 'Fractal' },
+                { id: 'node2', label: 'Mandala' },
+                { id: 'node3', label: 'Vector Field' },
+                { id: 'node4', label: 'Particles' },
+                { id: 'node5', label: 'Perlin' },
+                { id: 'node6', label: 'Mathematical' }
+            ],
+            edges: [
+                { source: 'node1', target: 'node2' },
+                { source: 'node2', target: 'node3' },
+                { source: 'node3', target: 'node4' },
+                { source: 'node4', target: 'node5' },
+                { source: 'node5', target: 'node6' }
+            ]
+        };
+        
+        const graph = new G6.Graph({
+            container: 'g6Container',
+            width: 800,
+            height: 300,
+            modes: {
+                default: ['drag-canvas', 'zoom-canvas']
+            },
+            defaultNode: {
+                size: 30,
+                style: {
+                    fill: '#fff',
+                    stroke: '#000'
+                }
+            },
+            defaultEdge: {
+                style: {
+                    stroke: '#fff'
+                }
+            }
+        });
+        
+        // G6 v5+ usa read() en lugar de data()
+        if (typeof graph.read === 'function') {
+            graph.read(data);
+        } else if (typeof graph.data === 'function') {
+            graph.data(data);
+            graph.render();
+        } else {
+            // Fallback: pasar datos directamente en el constructor
+            console.warn('Método de G6 no reconocido, intentando renderizar directamente');
+            graph.render();
+        }
+    } catch (error) {
+        console.error('Error creando visualización G6:', error);
+    }
 }
 
-// Inicializar visualizaciones adicionales
+// Inicializar visualizaciones adicionales (solo si los contenedores existen)
 setTimeout(() => {
-    createD3Visualization();
-    createG6Visualization();
+    try {
+        if (document.getElementById('d3Container')) {
+            createD3Visualization();
+        }
+        if (document.getElementById('g6Container')) {
+            createG6Visualization();
+        }
+    } catch (error) {
+        console.warn('Error inicializando visualizaciones:', error);
+    }
 }, 1000);
 

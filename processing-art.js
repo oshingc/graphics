@@ -3,7 +3,13 @@
 let currentSketch = null;
 let processingInstance = null;
 
-// Función para obtener color hexadecimal como array [R, G, B]
+// ========== UTILIDADES COMUNES ==========
+
+/**
+ * Convierte un color hexadecimal a array RGB [R, G, B]
+ * @param {string} hex - Color en formato hexadecimal (#RRGGBB)
+ * @returns {number[]} Array con valores RGB [0-255, 0-255, 0-255]
+ */
 function hexToRgb(hex) {
     const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
     return result ? [
@@ -13,7 +19,72 @@ function hexToRgb(hex) {
     ] : [255, 255, 255];
 }
 
-// Función para inicializar Processing.js
+/**
+ * Obtiene un valor numérico de un elemento del DOM
+ * @param {string} elementId - ID del elemento
+ * @param {number} defaultValue - Valor por defecto
+ * @returns {number}
+ */
+function getNumericValue(elementId, defaultValue) {
+    const element = document.getElementById(elementId);
+    if (!element) return defaultValue;
+    const value = parseFloat(element.value);
+    return isNaN(value) ? defaultValue : value;
+}
+
+/**
+ * Obtiene un valor booleano de un checkbox del DOM
+ * @param {string} elementId - ID del elemento
+ * @param {boolean} defaultValue - Valor por defecto
+ * @returns {boolean}
+ */
+function getBooleanValue(elementId, defaultValue) {
+    const element = document.getElementById(elementId);
+    if (!element) return defaultValue;
+    return element.checked;
+}
+
+/**
+ * Obtiene un valor de texto de un elemento del DOM
+ * @param {string} elementId - ID del elemento
+ * @param {string} defaultValue - Valor por defecto
+ * @returns {string}
+ */
+function getStringValue(elementId, defaultValue) {
+    const element = document.getElementById(elementId);
+    if (!element) return defaultValue;
+    return element.value || defaultValue;
+}
+
+/**
+ * Obtiene las dimensiones del canvas desde el DOM
+ * @returns {{width: number, height: number}}
+ */
+function getCanvasSize() {
+    return {
+        width: getNumericValue('canvasWidth', 800),
+        height: getNumericValue('canvasHeight', 600)
+    };
+}
+
+/**
+ * Obtiene los colores del canvas desde el DOM
+ * @returns {{bgColor: number[], primaryColor: number[], secondaryColor: number[]}}
+ */
+function getColors() {
+    return {
+        bgColor: hexToRgb(getStringValue('bgColor', '#000000')),
+        primaryColor: hexToRgb(getStringValue('primaryColor', '#ffffff')),
+        secondaryColor: hexToRgb(getStringValue('secondaryColor', '#00ff00'))
+    };
+}
+
+/**
+ * Inicializa una instancia de Processing.js
+ * @param {string} canvasId - ID del canvas
+ * @param {Function} sketch - Función del sketch
+ * @returns {Processing} Instancia de Processing
+ */
 function initProcessing(canvasId, sketch) {
     const canvas = document.getElementById(canvasId);
     if (processingInstance) {
@@ -22,6 +93,8 @@ function initProcessing(canvasId, sketch) {
     processingInstance = new Processing(canvas, sketch);
     return processingInstance;
 }
+
+// ========== SKETCHES ==========
 
 // Sketch de Fractal
 function fractalSketch(p) {
@@ -32,24 +105,26 @@ function fractalSketch(p) {
     let primaryColor = [255, 255, 255];
 
     p.setup = function() {
-        const width = parseInt(document.getElementById('canvasWidth').value) || 800;
-        const height = parseInt(document.getElementById('canvasHeight').value) || 600;
-        p.size(width, height);
-        p.background(bgColor[0], bgColor[1], bgColor[2]);
+        const size = getCanvasSize();
+        p.size(size.width, size.height);
+        const colors = getColors();
+        p.background(colors.bgColor[0], colors.bgColor[1], colors.bgColor[2]);
     };
 
     p.draw = function() {
         try {
-            iterations = parseInt(document.getElementById('fractalIterations').value) || 10;
+            iterations = getNumericValue('fractalIterations', 10);
             // Limitar iteraciones para evitar colgar el navegador
             if (iterations > 15) {
                 iterations = 15;
-                document.getElementById('fractalIterations').value = 15;
+                const el = document.getElementById('fractalIterations');
+                if (el) el.value = 15;
             }
-            angle = parseInt(document.getElementById('fractalAngle').value) || 90;
-            length = parseInt(document.getElementById('fractalLength').value) || 100;
-            bgColor = hexToRgb(document.getElementById('bgColor').value);
-            primaryColor = hexToRgb(document.getElementById('primaryColor').value);
+            angle = getNumericValue('fractalAngle', 90);
+            length = getNumericValue('fractalLength', 100);
+            const colors = getColors();
+            bgColor = colors.bgColor;
+            primaryColor = colors.primaryColor;
 
             p.background(bgColor[0], bgColor[1], bgColor[2]);
             p.stroke(primaryColor[0], primaryColor[1], primaryColor[2]);
@@ -94,19 +169,20 @@ function mandalaSketch(p) {
     let secondaryColor = [0, 255, 0];
 
     p.setup = function() {
-        const width = parseInt(document.getElementById('canvasWidth').value);
-        const height = parseInt(document.getElementById('canvasHeight').value);
-        p.size(width, height);
-        p.background(bgColor[0], bgColor[1], bgColor[2]);
+        const size = getCanvasSize();
+        p.size(size.width, size.height);
+        const colors = getColors();
+        p.background(colors.bgColor[0], colors.bgColor[1], colors.bgColor[2]);
     };
 
     p.draw = function() {
-        segments = parseInt(document.getElementById('mandalaSegments').value);
-        radius = parseInt(document.getElementById('mandalaRadius').value);
-        layers = parseInt(document.getElementById('mandalaLayers').value);
-        bgColor = hexToRgb(document.getElementById('bgColor').value);
-        primaryColor = hexToRgb(document.getElementById('primaryColor').value);
-        secondaryColor = hexToRgb(document.getElementById('secondaryColor').value);
+        segments = getNumericValue('mandalaSegments', 12);
+        radius = getNumericValue('mandalaRadius', 50);
+        layers = getNumericValue('mandalaLayers', 5);
+        const colors = getColors();
+        bgColor = colors.bgColor;
+        primaryColor = colors.primaryColor;
+        secondaryColor = colors.secondaryColor;
 
         p.background(bgColor[0], bgColor[1], bgColor[2]);
         p.translate(p.width / 2, p.height / 2);
@@ -142,18 +218,19 @@ function vectorFieldSketch(p) {
     let primaryColor = [255, 255, 255];
 
     p.setup = function() {
-        const width = parseInt(document.getElementById('canvasWidth').value);
-        const height = parseInt(document.getElementById('canvasHeight').value);
-        p.size(width, height);
-        p.background(bgColor[0], bgColor[1], bgColor[2]);
+        const size = getCanvasSize();
+        p.size(size.width, size.height);
+        const colors = getColors();
+        p.background(colors.bgColor[0], colors.bgColor[1], colors.bgColor[2]);
     };
 
     p.draw = function() {
-        density = parseInt(document.getElementById('vectorDensity').value);
-        scale = parseFloat(document.getElementById('vectorScale').value);
-        force = parseFloat(document.getElementById('vectorForce').value);
-        bgColor = hexToRgb(document.getElementById('bgColor').value);
-        primaryColor = hexToRgb(document.getElementById('primaryColor').value);
+        density = getNumericValue('vectorDensity', 20);
+        scale = getNumericValue('vectorScale', 0.02);
+        force = getNumericValue('vectorForce', 5);
+        const colors = getColors();
+        bgColor = colors.bgColor;
+        primaryColor = colors.primaryColor;
 
         p.background(bgColor[0], bgColor[1], bgColor[2]);
         p.stroke(primaryColor[0], primaryColor[1], primaryColor[2]);
@@ -210,10 +287,10 @@ function particleSketch(p) {
     };
 
     p.setup = function() {
-        const width = parseInt(document.getElementById('canvasWidth').value);
-        const height = parseInt(document.getElementById('canvasHeight').value);
-        p.size(width, height);
-        p.background(bgColor[0], bgColor[1], bgColor[2]);
+        const size = getCanvasSize();
+        p.size(size.width, size.height);
+        const colors = getColors();
+        p.background(colors.bgColor[0], colors.bgColor[1], colors.bgColor[2]);
         
         particles = [];
         for (let i = 0; i < particleCount; i++) {
@@ -222,11 +299,12 @@ function particleSketch(p) {
     };
 
     p.draw = function() {
-        particleCount = parseInt(document.getElementById('particleCount').value);
-        speed = parseFloat(document.getElementById('particleSpeed').value);
-        gravity = parseFloat(document.getElementById('particleGravity').value);
-        bgColor = hexToRgb(document.getElementById('bgColor').value);
-        primaryColor = hexToRgb(document.getElementById('primaryColor').value);
+        particleCount = getNumericValue('particleCount', 100);
+        speed = getNumericValue('particleSpeed', 2);
+        gravity = getNumericValue('particleGravity', 0.1);
+        const colors = getColors();
+        bgColor = colors.bgColor;
+        primaryColor = colors.primaryColor;
 
         p.background(bgColor[0], bgColor[1], bgColor[2], 20);
         p.fill(primaryColor[0], primaryColor[1], primaryColor[2]);
@@ -255,18 +333,19 @@ function perlinSketch(p) {
     let primaryColor = [255, 255, 255];
 
     p.setup = function() {
-        const width = parseInt(document.getElementById('canvasWidth').value);
-        const height = parseInt(document.getElementById('canvasHeight').value);
-        p.size(width, height);
-        p.background(bgColor[0], bgColor[1], bgColor[2]);
+        const size = getCanvasSize();
+        p.size(size.width, size.height);
+        const colors = getColors();
+        p.background(colors.bgColor[0], colors.bgColor[1], colors.bgColor[2]);
     };
 
     p.draw = function() {
-        scale = parseFloat(document.getElementById('perlinScale').value);
-        speed = parseFloat(document.getElementById('perlinSpeed').value);
-        detail = parseInt(document.getElementById('perlinDetail').value);
-        bgColor = hexToRgb(document.getElementById('bgColor').value);
-        primaryColor = hexToRgb(document.getElementById('primaryColor').value);
+        scale = getNumericValue('perlinScale', 0.01);
+        speed = getNumericValue('perlinSpeed', 0.02);
+        detail = getNumericValue('perlinDetail', 8);
+        const colors = getColors();
+        bgColor = colors.bgColor;
+        primaryColor = colors.primaryColor;
 
         p.background(bgColor[0], bgColor[1], bgColor[2]);
         
@@ -294,18 +373,19 @@ function mathematicalSketch(p) {
     let t = 0;
 
     p.setup = function() {
-        const width = parseInt(document.getElementById('canvasWidth').value);
-        const height = parseInt(document.getElementById('canvasHeight').value);
-        p.size(width, height);
-        p.background(bgColor[0], bgColor[1], bgColor[2]);
+        const size = getCanvasSize();
+        p.size(size.width, size.height);
+        const colors = getColors();
+        p.background(colors.bgColor[0], colors.bgColor[1], colors.bgColor[2]);
     };
 
     p.draw = function() {
-        mathType = document.getElementById('mathType').value;
-        paramA = parseInt(document.getElementById('mathParamA').value);
-        paramB = parseInt(document.getElementById('mathParamB').value);
-        bgColor = hexToRgb(document.getElementById('bgColor').value);
-        primaryColor = hexToRgb(document.getElementById('primaryColor').value);
+        mathType = getStringValue('mathType', 'spiral');
+        paramA = getNumericValue('mathParamA', 5);
+        paramB = getNumericValue('mathParamB', 3);
+        const colors = getColors();
+        bgColor = colors.bgColor;
+        primaryColor = colors.primaryColor;
 
         p.background(bgColor[0], bgColor[1], bgColor[2]);
         p.translate(p.width / 2, p.height / 2);
@@ -411,10 +491,10 @@ function tensionsSketch(p) {
     };
 
     p.setup = function() {
-        const width = parseInt(document.getElementById('canvasWidth').value) || 800;
-        const height = parseInt(document.getElementById('canvasHeight').value) || 600;
-        p.size(width, height);
-        p.background(bgColor[0], bgColor[1], bgColor[2]);
+        const size = getCanvasSize();
+        p.size(size.width, size.height);
+        const colors = getColors();
+        p.background(colors.bgColor[0], colors.bgColor[1], colors.bgColor[2]);
         
         // Inicializar nodos
         nodes = [];
@@ -427,15 +507,16 @@ function tensionsSketch(p) {
     };
 
     p.draw = function() {
-        nodeCount = parseInt(document.getElementById('tensionsNodes').value) || 20;
-        force = parseFloat(document.getElementById('tensionsForce').value) || 0.5;
-        minDist = parseFloat(document.getElementById('tensionsMinDist').value) || 50;
-        maxDist = parseFloat(document.getElementById('tensionsMaxDist').value) || 200;
-        thickness = parseFloat(document.getElementById('tensionsThickness').value) || 1;
-        animate = document.getElementById('tensionsAnimate').checked;
-        bgColor = hexToRgb(document.getElementById('bgColor').value);
-        primaryColor = hexToRgb(document.getElementById('primaryColor').value);
-        secondaryColor = hexToRgb(document.getElementById('secondaryColor').value);
+        nodeCount = getNumericValue('tensionsNodes', 20);
+        force = getNumericValue('tensionsForce', 0.5);
+        minDist = getNumericValue('tensionsMinDist', 50);
+        maxDist = getNumericValue('tensionsMaxDist', 200);
+        thickness = getNumericValue('tensionsThickness', 1);
+        animate = getBooleanValue('tensionsAnimate', true);
+        const colors = getColors();
+        bgColor = colors.bgColor;
+        primaryColor = colors.primaryColor;
+        secondaryColor = colors.secondaryColor;
 
         // Ajustar número de nodos si cambió
         if (nodes.length !== nodeCount) {
@@ -664,27 +745,28 @@ function musicalTensionsSketch(p) {
     }
 
     p.setup = function() {
-        const width = parseInt(document.getElementById('canvasWidth').value) || 800;
-        const height = parseInt(document.getElementById('canvasHeight').value) || 600;
-        p.size(width, height);
-        p.background(bgColor[0], bgColor[1], bgColor[2]);
+        const size = getCanvasSize();
+        p.size(size.width, size.height);
+        const colors = getColors();
+        p.background(colors.bgColor[0], colors.bgColor[1], colors.bgColor[2]);
         
         updateMusicalData();
     };
     
     function updateMusicalData() {
-        rootNote = document.getElementById('musicalRoot').value;
-        chordQuality = document.getElementById('musicalChordQuality').value;
-        mode = document.getElementById('musicalMode').value;
-        tensionsShow = document.getElementById('musicalTensionsShow').value;
-        noteSpacing = parseFloat(document.getElementById('musicalNoteSpacing').value) || 80;
-        circleRadius = parseFloat(document.getElementById('musicalCircleRadius').value) || 200;
-        lineThickness = parseFloat(document.getElementById('musicalLineThickness').value) || 2;
-        showNames = document.getElementById('musicalShowNames').checked;
-        animate = document.getElementById('musicalAnimate').checked;
-        bgColor = hexToRgb(document.getElementById('bgColor').value);
-        primaryColor = hexToRgb(document.getElementById('primaryColor').value);
-        secondaryColor = hexToRgb(document.getElementById('secondaryColor').value);
+        rootNote = getStringValue('musicalRoot', 'D');
+        chordQuality = getStringValue('musicalChordQuality', 'm7');
+        mode = getStringValue('musicalMode', 'dorian');
+        tensionsShow = getStringValue('musicalTensionsShow', 'all');
+        noteSpacing = getNumericValue('musicalNoteSpacing', 80);
+        circleRadius = getNumericValue('musicalCircleRadius', 200);
+        lineThickness = getNumericValue('musicalLineThickness', 2);
+        showNames = getBooleanValue('musicalShowNames', true);
+        animate = getBooleanValue('musicalAnimate', false);
+        const colors = getColors();
+        bgColor = colors.bgColor;
+        primaryColor = colors.primaryColor;
+        secondaryColor = colors.secondaryColor;
         
         // Calcular notas
         chordNotes = calculateChordNotes(rootNote, chordQuality);
@@ -765,7 +847,6 @@ function musicalTensionsSketch(p) {
             }
         });
         
-        // Dibujar información del acorde
         if (showNames) {
             p.fill(primaryColor[0], primaryColor[1], primaryColor[2]);
             p.textAlign(p.CENTER);
@@ -780,7 +861,9 @@ function musicalTensionsSketch(p) {
     };
 }
 
-// Función para generar arte según el tipo seleccionado
+/**
+ * Genera arte según el tipo seleccionado
+ */
 function generateArt() {
     try {
         const artType = document.getElementById('artType').value;

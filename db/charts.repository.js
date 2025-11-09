@@ -3,7 +3,7 @@ const { getDatabase } = require('./database');
 function findAll() {
     return new Promise((resolve, reject) => {
         const db = getDatabase();
-        const query = 'SELECT * FROM artworks ORDER BY timestamp DESC';
+        const query = 'SELECT * FROM charts ORDER BY created_at DESC';
         
         db.all(query, [], (err, rows) => {
             if (err) {
@@ -18,7 +18,7 @@ function findAll() {
 function findById(id) {
     return new Promise((resolve, reject) => {
         const db = getDatabase();
-        const query = 'SELECT * FROM artworks WHERE id = ?';
+        const query = 'SELECT * FROM charts WHERE id = ?';
         
         db.get(query, [id], (err, row) => {
             if (err) {
@@ -33,18 +33,18 @@ function findById(id) {
 function insert(data) {
     return new Promise((resolve, reject) => {
         const db = getDatabase();
-        const { type, parameters, imageData, canvasSize } = data;
+        const { name, type, config, data: chartData } = data;
         
         const query = `
-            INSERT INTO artworks (type, parameters, image_data, canvas_size)
+            INSERT INTO charts (name, type, config, data)
             VALUES (?, ?, ?, ?)
         `;
         
         db.run(query, [
+            name,
             type,
-            JSON.stringify(parameters),
-            imageData || null,
-            JSON.stringify(canvasSize || {})
+            JSON.stringify(config),
+            chartData ? JSON.stringify(chartData) : null
         ], function(err) {
             if (err) {
                 reject(err);
@@ -58,19 +58,19 @@ function insert(data) {
 function update(id, data) {
     return new Promise((resolve, reject) => {
         const db = getDatabase();
-        const { type, parameters, imageData, canvasSize } = data;
+        const { name, type, config, data: chartData } = data;
         
         const query = `
-            UPDATE artworks 
-            SET type = ?, parameters = ?, image_data = ?, canvas_size = ?, timestamp = CURRENT_TIMESTAMP
+            UPDATE charts 
+            SET name = ?, type = ?, config = ?, data = ?, updated_at = CURRENT_TIMESTAMP
             WHERE id = ?
         `;
         
         db.run(query, [
+            name,
             type,
-            JSON.stringify(parameters),
-            imageData || null,
-            JSON.stringify(canvasSize || {}),
+            JSON.stringify(config),
+            chartData ? JSON.stringify(chartData) : null,
             id
         ], function(err) {
             if (err) {
@@ -85,7 +85,7 @@ function update(id, data) {
 function deleteById(id) {
     return new Promise((resolve, reject) => {
         const db = getDatabase();
-        const query = 'DELETE FROM artworks WHERE id = ?';
+        const query = 'DELETE FROM charts WHERE id = ?';
         
         db.run(query, [id], function(err) {
             if (err) {
@@ -104,3 +104,4 @@ module.exports = {
     update,
     deleteById
 };
+

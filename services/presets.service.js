@@ -1,14 +1,15 @@
-const repo = require('../db/artworks.repository');
+const repo = require('../db/presets.repository');
 
 async function getAll() {
     const rows = await repo.findAll();
     return rows.map(row => ({
         id: row.id,
-        type: row.type,
+        name: row.name,
+        description: row.description,
+        artType: row.art_type,
         parameters: JSON.parse(row.parameters),
-        imageData: row.image_data,
-        canvasSize: JSON.parse(row.canvas_size || '{}'),
-        timestamp: row.timestamp
+        createdAt: row.created_at,
+        updatedAt: row.updated_at
     }));
 }
 
@@ -18,11 +19,12 @@ async function getById(id) {
 
     return {
         id: row.id,
-        type: row.type,
+        name: row.name,
+        description: row.description,
+        artType: row.art_type,
         parameters: JSON.parse(row.parameters),
-        imageData: row.image_data,
-        canvasSize: JSON.parse(row.canvas_size || '{}'),
-        timestamp: row.timestamp
+        createdAt: row.created_at,
+        updatedAt: row.updated_at
     };
 }
 
@@ -48,3 +50,4 @@ module.exports = {
     update,
     deleteById
 };
+

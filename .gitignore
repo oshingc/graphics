@@ -1,15 +1,44 @@
+# Dependencies
 node_modules/
-artworks.db
-artworks.db-journal
-manim_output/
-temp_manim_script.py
-*.mp4
-*.png
+package-lock.json
+
+# Database
+*.db
+*.db-journal
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment variables
 .env
+.env.local
+.env.production
+
+# OS
 .DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
 
 # Cypress
-cypress/videos/
 cypress/screenshots/
+cypress/videos/
 cypress/downloads/
 
+# Build outputs
+dist/
+build/
+*.mp4
+manim_output/
+temp_manim_script.py
+
+# GitHub Pages
+_site/
