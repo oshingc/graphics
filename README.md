@@ -216,6 +216,10 @@ Para generar animaciones con Manim desde un artefacto guardado:
 2. Haz una petición POST a `/api/art/:id/manim`
 3. La animación se generará y guardará en `manim_output/`
 
+## Cypress.io
+<img width="1711" height="862" alt="image" src="https://github.com/user-attachments/assets/d9090bc7-3011-48cb-9ffc-b9a18c2d5eb7" />
+
+
 ## Licencia
 
 MIT
